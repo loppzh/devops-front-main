@@ -3,126 +3,128 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agenda DevOps</title>
+    <title>DevOps App</title>
     <style>
         :root {
             --primary-color: #4F46E5;
             --primary-hover: #4338CA;
-            --danger-color: #EF4444;
-            --danger-hover: #DC2626;
-            --edit-color: #F59E0B;
-            --edit-hover: #D97706;
             --bg-color: #F3F4F6;
             --card-bg: #FFFFFF;
             --text-main: #1F2937;
+            --text-muted: #6B7280;
             --border-color: #E5E7EB;
         }
-        body { font-family: 'Segoe UI', system-ui, sans-serif; background-color: var(--bg-color); color: var(--text-main); display: flex; justify-content: center; padding: 2rem; margin: 0; }
-        .container { background-color: var(--card-bg); padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); width: 100%; max-width: 600px; }
-        h1 { text-align: center; margin-top: 0; color: var(--text-main); }
-        .form-group { display: flex; gap: 10px; margin-bottom: 2rem; flex-wrap: wrap; }
-        input[type="text"], input[type="date"] { flex: 1; min-width: 150px; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; outline: none; }
-        input[type="text"]:focus, input[type="date"]:focus { border-color: var(--primary-color); }
-        button { color: white; border: none; padding: 0.75rem 1.25rem; border-radius: 6px; cursor: pointer; font-weight: 600; transition: 0.2s; }
-        .btn-save { background-color: var(--primary-color); }
-        .btn-save:hover { background-color: var(--primary-hover); }
-        .btn-edit { background-color: var(--edit-color); padding: 0.5rem 1rem; font-size: 0.875rem; }
-        .btn-edit:hover { background-color: var(--edit-hover); }
-        .btn-delete { background-color: var(--danger-color); padding: 0.5rem 1rem; font-size: 0.875rem; }
-        .btn-delete:hover { background-color: var(--danger-hover); }
-        .event-card { background: var(--bg-color); border: 1px solid var(--border-color); padding: 1rem; border-radius: 8px; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; }
-        .event-info strong { display: block; font-size: 1.1rem; margin-bottom: 4px; }
-        .event-info span { color: #6B7280; font-size: 0.9rem; }
-        .event-actions { display: flex; gap: 8px; }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            width: 100%;
+            max-width: 400px;
+        }
+        h1 {
+            margin-top: 0;
+            font-size: 1.5rem;
+            color: var(--text-main);
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 1.5rem;
+        }
+        input[type="text"] {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        input[type="text"]:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.25rem;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+        li {
+            background-color: var(--bg-color);
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            color: var(--text-main);
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>📅 Agenda de Avisos</h1>
-        
-        <!-- Campo oculto para guardar o ID quando formos editar um item -->
-        <input type="hidden" id="eventId">
-        
-        <div class="form-group">
-            <input type="text" id="eventName" placeholder="Nome do evento/aviso...">
-            <input type="date" id="eventDate">
-            <button class="btn-save" onclick="saveEvent()">Salvar</button>
+        <h1>Lista de Itens</h1>
+        <div class="input-group">
+            <input type="text" id="itemName" placeholder="Digite um novo item...">
+            <button onclick="addItem()">Adicionar</button>
         </div>
-        
-        <div id="eventList"></div>
+        <ul id="itemList"></ul>
     </div>
 
     <script>
-        async function fetchEvents() {
+        async function fetchItems() {
             const response = await fetch('/api/items/');
-            let items = await response.json();
-
-            // Organiza a lista pela data mais próxima
-            items.sort((a, b) => new Date(a.date) - new Date(b.date));
-
-            const list = document.getElementById('eventList');
+            const items = await response.json();
+            const list = document.getElementById('itemList');
             list.innerHTML = '';
-
             items.forEach(item => {
-                // Formata a data de AAAA-MM-DD para DD/MM/AAAA
-                const dataFormatada = item.date ? item.date.split('-').reverse().join('/') : 'Sem data definida';
-
-                const card = document.createElement('div');
-                card.className = 'event-card';
-                card.innerHTML = `
-                    <div class="event-info">
-                        <strong>${item.name}</strong>
-                        <span>🗓️ ${dataFormatada}</span>
-                    </div>
-                    <div class="event-actions">
-                        <button class="btn-edit" onclick="editEvent(${item.id}, '${item.name}', '${item.date}')">Editar</button>
-                        <button class="btn-delete" onclick="deleteEvent(${item.id})">Excluir</button>
-                    </div>
-                `;
-                list.appendChild(card);
+                const li = document.createElement('li');
+                li.textContent = item.name;
+                list.appendChild(li);
             });
         }
 
-        async function saveEvent() {
-            const id = document.getElementById('eventId').value;
-            const name = document.getElementById('eventName').value;
-            const date = document.getElementById('eventDate').value || null;
-
-            if (!name) return alert('Por favor, informe o nome do aviso!');
-
-            // Se tem ID, estamos editando (PUT). Se não, estamos criando (POST).
-            const method = id ? 'PUT' : 'POST';
-            const url = id ? `/api/items/${id}/` : '/api/items/';
-
-            await fetch(url, {
-                method: method,
+        async function addItem() {
+            const input = document.getElementById('itemName');
+            const name = input.value;
+            if (!name) return;
+            await fetch('/api/items/', {
+                method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, date })
+                body: JSON.stringify({ name })
             });
-
-            // Limpa o formulário após salvar
-            document.getElementById('eventId').value = '';
-            document.getElementById('eventName').value = '';
-            document.getElementById('eventDate').value = '';
-
-            fetchEvents();
+            input.value = '';
+            fetchItems();
         }
 
-        function editEvent(id, name, date) {
-            // Joga os dados do item de volta para o formulário para o usuário alterar
-            document.getElementById('eventId').value = id;
-            document.getElementById('eventName').value = name;
-            document.getElementById('eventDate').value = (date && date !== 'null') ? date : '';
-        }
-
-        async function deleteEvent(id) {
-            if(confirm('Tem certeza que deseja excluir este aviso?')) {
-                await fetch(`/api/items/${id}/`, { method: 'DELETE' });
-                fetchEvents();
-            }
-        }
-
-        fetchEvents();
+        fetchItems();
     </script>
 </body>
 </html>
