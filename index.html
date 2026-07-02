@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>DevOps App</title>
+</head>
+<body>
+    <h1>Lista de Itens</h1>
+    <input type="text" id="itemName" placeholder="Nome do item">
+    <button onclick="addItem()">Adicionar</button>
+    <ul id="itemList"></ul>
+
+    <script>
+        async function fetchItems() {
+            const response = await fetch('http://localhost:8000/api/items/');
+            const items = await response.json();
+            const list = document.getElementById('itemList');
+            list.innerHTML = '';
+            items.forEach(item => {
+                const li = document.createElement('li');
+                li.textContent = item.name;
+                list.appendChild(li);
+            });
+        }
+
+        async function addItem() {
+            const input = document.getElementById('itemName');
+            const name = input.value;
+            if (!name) return;
+            await fetch('http://localhost:8000/api/items/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name })
+            });
+            input.value = '';
+            fetchItems();
+        }
+
+        fetchItems();
+    </script>
+</body>
+</html>
