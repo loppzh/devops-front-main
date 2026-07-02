@@ -2,17 +2,105 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DevOps App</title>
+    <style>
+        :root {
+            --primary-color: #4F46E5;
+            --primary-hover: #4338CA;
+            --bg-color: #F3F4F6;
+            --card-bg: #FFFFFF;
+            --text-main: #1F2937;
+            --text-muted: #6B7280;
+            --border-color: #E5E7EB;
+        }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            width: 100%;
+            max-width: 400px;
+        }
+        h1 {
+            margin-top: 0;
+            font-size: 1.5rem;
+            color: var(--text-main);
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 1.5rem;
+        }
+        input[type="text"] {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        input[type="text"]:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.25rem;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+        li {
+            background-color: var(--bg-color);
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            color: var(--text-main);
+        }
+    </style>
 </head>
 <body>
-    <h1>Lista de Itens</h1>
-    <input type="text" id="itemName" placeholder="Nome do item">
-    <button onclick="addItem()">Adicionar</button>
-    <ul id="itemList"></ul>
+    <div class="container">
+        <h1>Lista de Itens</h1>
+        <div class="input-group">
+            <input type="text" id="itemName" placeholder="Digite um novo item...">
+            <button onclick="addItem()">Adicionar</button>
+        </div>
+        <ul id="itemList"></ul>
+    </div>
 
     <script>
         async function fetchItems() {
-            const response = await fetch('http://localhost:8000/api/items/');
+            const response = await fetch('/api/items/');
             const items = await response.json();
             const list = document.getElementById('itemList');
             list.innerHTML = '';
@@ -27,11 +115,9 @@
             const input = document.getElementById('itemName');
             const name = input.value;
             if (!name) return;
-            await fetch('http://localhost:8000/api/items/', {
+            await fetch('/api/items/', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name })
             });
             input.value = '';
